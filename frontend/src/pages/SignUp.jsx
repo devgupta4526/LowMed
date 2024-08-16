@@ -15,13 +15,18 @@ const SignUp = () => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+    if (!username || !fullName || !email || !password || !avatar) {
+      toast.error("Please fill in all required fields and upload an avatar.");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("username", username);
-      formData.append("fullName",fullName);
+      formData.append("fullName", fullName);
       formData.append("email", email);
       formData.append("password", password);
-      if (avatar) formData.append("avatar", avatar);
+      formData.append("avatar", avatar);
       if (coverImage) formData.append("coverImage", coverImage);
 
       const res = await axios.post(
@@ -54,9 +59,9 @@ const SignUp = () => {
           <div className="mb-4">
             <label
               htmlFor="username"
-              className="block text-sm font-medium text-grey-700 mb-2"
+              className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Username
+              Username <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -65,15 +70,16 @@ const SignUp = () => {
               placeholder="devgupta4526"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="shadow-md rounded-md w-full pz-3 py-2 border-gray-300 focus:outline-none focus:ring-black focus:border-black"
+              className="shadow-md rounded-md w-full px-3 py-2 border-gray-300 focus:outline-none focus:ring-black focus:border-black"
+              required
             />
           </div>
           <div className="mb-4">
             <label
               htmlFor="fullName"
-              className="block text-sm font-medium text-grey-700 mb-2"
+              className="block text-sm font-medium text-gray-700 mb-2"
             >
-              FullName
+              Full Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -82,15 +88,16 @@ const SignUp = () => {
               placeholder="Dev Gupta"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="shadow-md rounded-md w-full pz-3 py-2 border-gray-300 focus:outline-none focus:ring-black focus:border-black"
+              className="shadow-md rounded-md w-full px-3 py-2 border-gray-300 focus:outline-none focus:ring-black focus:border-black"
+              required
             />
           </div>
           <div className="mb-4">
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-grey-700 mb-2"
+              className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Email
+              Email <span className="text-red-500">*</span>
             </label>
             <input
               type="email"
@@ -99,15 +106,16 @@ const SignUp = () => {
               placeholder="devguptamsi@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="shadow-md rounded-md w-full pz-3 py-2 border-gray-300 focus:outline-none focus:ring-black focus:border-black"
+              className="shadow-md rounded-md w-full px-3 py-2 border-gray-300 focus:outline-none focus:ring-black focus:border-black"
+              required
             />
           </div>
           <div className="mb-4">
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-grey-700 mb-2"
+              className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Password
+              Password <span className="text-red-500">*</span>
             </label>
             <input
               type="password"
@@ -116,7 +124,8 @@ const SignUp = () => {
               placeholder="Enter Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="shadow-md rounded-md w-full pz-3 py-2 border-gray-300 focus:outline-none focus:ring-black focus:border-black"
+              className="shadow-md rounded-md w-full px-3 py-2 border-gray-300 focus:outline-none focus:ring-black focus:border-black"
+              required
             />
           </div>
 
@@ -126,13 +135,15 @@ const SignUp = () => {
               htmlFor="avatar"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Avatar
+              Avatar <span className="text-red-500">*</span>
             </label>
             <input
               type="file"
               id="avatar"
               onChange={(e) => setAvatar(e.target.files[0])}
-              className="shadow-md rounded-md w-full pz-3 py-2 border-gray-300 focus:outline-none focus:ring-black focus:border-black"
+              className="file:border file:rounded-md file:py-2 file:px-4 file:bg-black file:text-white file:cursor-pointer file:hover:bg-gray-700"
+              accept="image/*"
+              required
             />
           </div>
           <div className="mb-4">
@@ -146,25 +157,9 @@ const SignUp = () => {
               type="file"
               id="coverImage"
               onChange={(e) => setCoverImage(e.target.files[0])}
-              className="shadow-md rounded-md w-full pz-3 py-2 border-gray-300 focus:outline-none focus:ring-black focus:border-black"
+              className="file:border file:rounded-md file:py-2 file:px-4 file:bg-black file:text-white file:cursor-pointer file:hover:bg-gray-700"
+              accept="image/*"
             />
-          </div>
-
-          {/* Account Type Selection */}
-          <div className="mb-4">
-            <label
-              htmlFor="accountType"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Account Type
-            </label>
-            <select
-              onChange={(e) => setAccountType(e.target.value)}
-              className="shadow-md rounded-md w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-black focus:border-black"
-            >
-              <option value="buyer">Buyer</option>
-              <option value="seller">Seller</option>
-            </select>
           </div>
 
           {/* Login link */}
@@ -176,7 +171,7 @@ const SignUp = () => {
 
           <button
             type="submit"
-            className="w-full py-2 px-4 rounded-md shadow-md text-sm font-medium text-white bg-black"
+            className="w-full py-2 px-4 rounded-md shadow-md text-sm font-medium text-white bg-black hover:bg-gray-800"
           >
             Signup
           </button>

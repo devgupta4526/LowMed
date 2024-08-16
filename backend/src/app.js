@@ -17,8 +17,15 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}))
 
 
 
+//routes import
+import userRouter from './routes/user.routes.js'
 
 
 
-export {app};
+//routes declaration
+app.use("/api/v1/users", userRouter)
+
+
+
+export  {app};
 

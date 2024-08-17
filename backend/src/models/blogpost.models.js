@@ -1,25 +1,42 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
+import { Schema } from "mongoose";
 
-const blogPostSchema = new Schema({
-  title: { type: String, required: true },
-  author: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to User model
-  content: { type: String, required: true },
-  image: { type: String, required: true },
-  relatedPosts: [
-    {
-      id: { type: Schema.Types.ObjectId, ref: 'BlogPost' },
-      title: String,
-      image: String,
-    }
-  ],
-  comments: [
-    {
+// Define the schema for a blog post
+const blogPostSchema = new Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    author: {
       type: Schema.Types.ObjectId,
-      ref: 'Comment'
-    }
-  ]
-}, { timestamps: true });
+      ref: "User",
+      required: true,
+    },
+    content: {
+      type: String,
+      required: true,
+    },
+    image: {
+      type: String,
+    },
+    categories: [
+      {
+        type: String,
+        enum: ["Tech", "MobileDev", "Travel", "Food", "Lifestyle","None"], // Add your categories here
+      },
+    ],
+    comments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Comment",
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
-const BlogPost = mongoose.model('BlogPost', blogPostSchema);
+const BlogPost = mongoose.model("BlogPost", blogPostSchema);
 
 export default BlogPost;

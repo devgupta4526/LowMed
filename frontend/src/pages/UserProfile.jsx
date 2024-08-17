@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import BlogCard from '../components/BlogCard';
+import { useSelector } from 'react-redux';
+import {toast} from 'react-hot-toast'
+import axios from 'axios'
 
 const UserProfile = () => {
   const [savedBlogs, setSavedBlogs] = useState([
@@ -39,7 +42,7 @@ const UserProfile = () => {
   const [newBlog, setNewBlog] = useState({
     title: '',
     author: '',
-    image: '',
+    image: null, // Changed to handle file
     excerpt: '',
   });
 
@@ -51,11 +54,56 @@ const UserProfile = () => {
 
   const [isUpdateFormVisible, setIsUpdateFormVisible] = useState(false);
 
-  const handleAddBlog = (e) => {
+
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [image , setImage] = useState(null);
+  const [content, setContent] = useState("");
+  const [category,setCategory] = useState("None");
+
+  const userId = useSelector((state) => state.auth.userId);
+  const yourJwtToken = useSelector((state) => state.auth.accessToken);
+
+  const handleAddBlog = async (e) => {
     e.preventDefault();
-    const newBlogWithId = { ...newBlog, id: Date.now().toString() };
-    setYourBlogs([...yourBlogs, newBlogWithId]);
-    setNewBlog({ title: '', author: '', image: '', excerpt: '' });
+    setAuthor(userId);
+
+    if (!title  || !image || !content || !category) {
+      toast.error("Please fill in all required fields and upload an avatar.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("author", author);
+      formData.append("image", image);
+      formData.append("content", content);
+      formData.append("category",category);
+
+      const res = await axios.post(
+        import.meta.env.VITE_API_URL + "/blogs/post",
+        formData,
+        { headers: { 
+          Authorization: `Bearer ${yourJwtToken}`,
+          "Content-Type": "multipart/form-data" } }
+      );
+      const data = await res.data;
+      if (data.success) {
+        setTitle("");
+        setContent("");
+        setAuthor("");
+        setImage(null);
+        setCategory("None");
+        toast.success(data.message);
+      }
+
+      
+    } catch (error) {
+      toast.error(error.response?.data?.message || "An error occurred");  
+      console.log(error);  
+    }
+    
   };
 
   const handleUpdateDetails = (e) => {
@@ -68,6 +116,10 @@ const UserProfile = () => {
     // Logic to handle user logout
     // For example, clearing tokens and redirecting to the login page
     console.log('User logged out');
+  };
+
+  const handleFileChange = (e) => {
+    setNewBlog({ ...newBlog, image: e.target.files[0] });
   };
 
   return (
@@ -186,38 +238,60 @@ const UserProfile = () => {
           <form onSubmit={handleAddBlog}>
             <div className='grid grid-cols-1 gap-4'>
               <input
+              id='title'
                 type='text'
                 placeholder='Title'
-                value={newBlog.title}
-                onChange={(e) => setNewBlog({ ...newBlog, title: e.target.value })}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 className='w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black'
                 required
               />
-              <input
-                type='text'
-                placeholder='Author'
-                value={newBlog.author}
-                onChange={(e) => setNewBlog({ ...newBlog, author: e.target.value })}
-                className='w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black'
-                required
-              />
-              <input
-                type='text'
-                placeholder='Image URL'
-                value={newBlog.image}
-                onChange={(e) => setNewBlog({ ...newBlog, image: e.target.value })}
-                className='w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black'
-                required
-              />
+              <div className="mb-4">
+            <label
+              htmlFor="image"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Image <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="file"
+              id="image"
+              onChange={(e) => setImage(e.target.files[0])}
+              className="file:border file:rounded-md file:py-2 file:px-4 file:bg-black file:text-white file:cursor-pointer file:hover:bg-gray-700"
+              accept="image/*"
+              required
+            />
+          </div>
               <textarea
-                placeholder='Excerpt'
-                value={newBlog.excerpt}
-                onChange={(e) => setNewBlog({ ...newBlog, excerpt: e.target.value })}
+              id='content'
+                placeholder='Content'
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
                 className='w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black'
                 rows='4'
                 required
               />
             </div>
+            <div className="mb-4">
+            <label
+              htmlFor="accountType"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Select Your Category
+            </label>
+            <select
+              onChange={(e) => setCategory(e.target.value)}
+              className="shadow-md rounded-md w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-black focus:border-black"
+            >
+              <option value="Tech">Tech</option>
+              <option value="MobileDev">MobileDev</option>
+              <option value="Travel">Travel</option>
+              <option value="Food">Food</option>
+              <option value="Lifestyle">Lifestyle</option>
+              <option value="None">None</option>
+            </select>
+          </div>
+
             <div className='flex justify-end mt-6'>
               <button
                 type='submit'

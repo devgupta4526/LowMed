@@ -128,9 +128,12 @@ const loginUser = asyncHandler(async (req, res) => {
     message: "User logged in",
     accessToken : accessToken,
     refreshToken : refreshToken,
-    role: user.accountType,
-    author: user.username
+    userId : user._id,   
   });
 });
+
+const logoutUser = asyncHandler(async (req,res) =>{
+  
+})
 
 export { signUpUser, loginUser };

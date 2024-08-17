@@ -27,6 +27,11 @@ const Navbar = () => {
         <Link to="/categories" className="hover:text-black cursor-pointer sm:p-2">
           Categories
         </Link>
+        {isAuthenticated && (<>
+          <Link to="/profile" className="hover:text-black cursor-pointer sm:p-2">
+          Profile
+        </Link>
+        </>)}
         {!isAuthenticated && (
           <>
             <Link to="/login" className="hover:text-black cursor-pointer sm:p-2">

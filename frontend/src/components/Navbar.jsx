@@ -1,7 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const { pathname } = useLocation();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   return (
     <nav
@@ -25,12 +27,16 @@ const Navbar = () => {
         <Link to="/categories" className="hover:text-black cursor-pointer sm:p-2">
           Categories
         </Link>
-        <Link to="/login" className="hover:text-black cursor-pointer sm:p-2">
-          Log In
-        </Link>
-        <Link to="/signup" className="hover:text-black cursor-pointer sm:p-2">
-          Sign Up
-        </Link>
+        {!isAuthenticated && (
+          <>
+            <Link to="/login" className="hover:text-black cursor-pointer sm:p-2">
+              Log In
+            </Link>
+            <Link to="/signup" className="hover:text-black cursor-pointer sm:p-2">
+              Sign Up
+            </Link>
+          </>
+        )}
       </ul>
     </nav>
   );

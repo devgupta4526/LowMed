@@ -8,19 +8,15 @@ const signUpUser = asyncHandler(async (req, res) => {
   const { email, username, fullName, password } = req.body;
 
   if (
-    [fullName, email, username, password].some((field) => {
-      field?.trim() === "";
-    })
+    [fullName, email, username, password].some((field) => field?.trim() === "")
   ) {
-    throw ApiError(400, "All Fields Are Required");
+    throw new ApiError(400, "All Fields Are Required");
   }
 
-  const doesUserExist = await User.findOne({
-    $or: [{ username }, { email }],
-  });
+  const doesUserExist = await User.findOne({ $or: [{ username }, { email }] });
 
   if (doesUserExist) {
-    throw new ApiError(400, "User with same username or email exist");
+    throw new ApiError(400, "User with same username or email exists");
   }
 
   const avatarLocalPath = req.files?.avatar[0]?.path;
@@ -40,7 +36,7 @@ const signUpUser = asyncHandler(async (req, res) => {
   const avatar = await uploadOnCloudinary(avatarLocalPath);
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
   if (!avatar) {
-    throw ApiError(400, "Avatar File is needed");
+    throw new ApiError(400, "Avatar File is needed");
   }
 
   const user = await User.create({
@@ -84,26 +80,25 @@ const generateAccessRefreshToken = async (userId) => {
 };
 
 const loginUser = asyncHandler(async (req, res) => {
-  //taking values
   const { username, email, password } = req.body;
   if (!username && !email) {
-    throw new ApiError(400, "username or email is required");
+    throw new ApiError(400, "Username or email is required");
   }
 
-  const user = await User.findOne({
-    $or: [{ username }, { email }],
-  });
+  const user = await User.findOne({ $or: [{ username }, { email }] });
 
   if (!user) {
     throw new ApiError(400, "User with email or username not found");
   }
-  //check password
+
   const isPasswordCorrect = await user.comparePassword(password);
   if (!isPasswordCorrect) {
-    throw new ApiError(400, "Ivalid Credentials");
+    throw new ApiError(400, "Invalid Credentials");
   }
 
-  const { accessToken, refreshToken } = generateAccessRefreshToken(user._id);
+  const { accessToken, refreshToken } = await generateAccessRefreshToken(
+    user._id
+  );
 
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -111,24 +106,31 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const options = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production", // Ensure HTTPS in production
   };
 
-  return res
-    .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(
-        200,
-        {
-          user: loggedInUser,
-          accessToken,
-          refreshToken,
-        },
-        "User Logged In Successfully"
-      )
-    );
+  // return res
+  //   .status(200)
+  //   .cookie("accessToken", accessToken, options)
+  //   .cookie("refreshToken", refreshToken, options)
+  //   .json(
+  //     new ApiResponse(
+  //       200,
+  //       { user: loggedInUser, accessToken, refreshToken },
+  //       "User Logged In Successfully"
+  //     )
+  //   );
+  return res.status(200)
+  .cookie("accessToken", accessToken, options)
+  .cookie("refreshToken", refreshToken, options)
+  .json({
+    success: true,
+    message: "User logged in",
+    accessToken : accessToken,
+    refreshToken : refreshToken,
+    role: user.accountType,
+    author: user.username
+  });
 });
 
 export { signUpUser, loginUser };

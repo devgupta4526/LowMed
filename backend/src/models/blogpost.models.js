@@ -21,12 +21,11 @@ const blogPostSchema = new Schema(
     image: {
       type: String,
     },
-    categories: [
-      {
-        type: String,
-        enum: ["Tech", "MobileDev", "Travel", "Food", "Lifestyle","None"], // Add your categories here
-      },
-    ],
+    category: {
+      type: String,
+      enum: ["Tech", "MobileDev", "Travel", "Food", "Lifestyle", "None"], // Define your categories here
+      required: true,
+    },
     comments: [
       {
         type: Schema.Types.ObjectId,

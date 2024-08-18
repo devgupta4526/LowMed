@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const commentSchema = new Schema({
+const commentSchema = new mongoose.Schema({
   name: { type: String, default: 'Anonymous' },
   text: { type: String, required: true },
   blogPost: { type: Schema.Types.ObjectId, ref: 'BlogPost', required: true }, // Reference to BlogPost model

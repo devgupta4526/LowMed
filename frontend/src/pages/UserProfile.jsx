@@ -63,12 +63,13 @@ const UserProfile = () => {
 
   const userId = useSelector((state) => state.auth.userId);
   const yourJwtToken = useSelector((state) => state.auth.accessToken);
-
+ 
   const handleAddBlog = async (e) => {
     e.preventDefault();
     setAuthor(userId);
+    
 
-    if (!title  || !image || !content || !category) {
+    if (!title || !author  || !image || !content || !category) {
       toast.error("Please fill in all required fields and upload an avatar.");
       return;
     }
@@ -76,7 +77,7 @@ const UserProfile = () => {
     try {
       const formData = new FormData();
       formData.append("title", title);
-      formData.append("author", author);
+      formData.append("author", userId);
       formData.append("image", image);
       formData.append("content", content);
       formData.append("category",category);

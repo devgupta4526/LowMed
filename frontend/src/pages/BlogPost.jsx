@@ -1,51 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const BlogPost = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // Use useNavigate instead of useHistory
-  const [comments, setComments] = useState([
-    { id: 1, name: 'John Doe', text: 'This is a really insightful post! Thanks for sharing.' },
-    { id: 2, name: 'Jane Smith', text: 'I love visiting beaches, this post was very relatable.' },
-  ]);
+  const navigate = useNavigate(); 
+  const [blogPost, setBlogPost] = useState(null);
   const [newComment, setNewComment] = useState('');
 
-  const handleCommentSubmit = () => {
-    if (newComment.trim()) {
-      setComments([
-        ...comments,
-        { id: comments.length + 1, name: 'Anonymous', text: newComment.trim() }
-      ]);
-      setNewComment('');
+  // Temporary data for related posts and comments
+  const tempRelatedPosts = [
+    {
+      id: 2,
+      title: "Mountain Hiking Adventure",
+      image: "https://images.pexels.com/photos/414171/pexels-photo-414171.jpeg"
+    },
+    {
+      id: 3,
+      title: "A Day in the Forest",
+      image: "https://images.pexels.com/photos/355321/pexels-photo-355321.jpeg"
     }
+  ];
+
+  const tempComments = [
+    { id: 1, name: 'John Doe', text: 'This is a really insightful post! Thanks for sharing.' },
+    { id: 2, name: 'Jane Smith', text: 'I love visiting beaches, this post was very relatable.' }
+  ];
+
+  useEffect(() => {
+    const fetchBlogPost = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/blogs/post/${id}`);
+        setBlogPost(response.data.data);
+      } catch (error) {
+        console.error('Error fetching blog post:', error);
+      }
+    };
+
+    fetchBlogPost();
+  }, [id]);
+
+  const handleCommentSubmit = () => {
+    if (newComment.trim() === '') return;
+
+    // Temporary comment submission handling
+    setNewComment('');
   };
 
   const handleBackClick = () => {
     navigate(-1); // Navigate back to the previous page
   };
 
-  const blogPost = {
-    title: "Exploring the Beaches",
-    author: "devgupta4526",
-    content: `
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-      Quisque at erat eu lacus bibendum tincidunt. Nulla ac bibendum orci.
-      Praesent ut lacinia magna. Duis tristique consectetur erat, non condimentum nisi aliquet ut.
-      `,
-    image: "https://images.pexels.com/photos/3238764/pexels-photo-3238764.jpeg",
-    relatedPosts: [
-      {
-        id: 2,
-        title: "Mountain Hiking Adventure",
-        image: "https://images.pexels.com/photos/414171/pexels-photo-414171.jpeg"
-      },
-      {
-        id: 3,
-        title: "A Day in the Forest",
-        image: "https://images.pexels.com/photos/355321/pexels-photo-355321.jpeg"
-      }
-    ]
-  };
+  if (!blogPost) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className='mt-20'>
@@ -59,7 +67,7 @@ const BlogPost = () => {
         </button>
 
         <h1 className='text-5xl font-extrabold mb-6'>{blogPost.title}</h1>
-        <p className='text-sm text-gray-500 mb-2'>By {blogPost.author}</p>
+        <p className='text-sm text-gray-500 mb-2'>By {blogPost.author.username}</p>
         <img
           src={blogPost.image}
           alt={blogPost.title}
@@ -73,7 +81,7 @@ const BlogPost = () => {
         <div className='related-posts mb-10'>
           <h2 className='text-3xl font-semibold mb-5'>Related Posts</h2>
           <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
-            {blogPost.relatedPosts.map(post => (
+            {tempRelatedPosts.map(post => (
               <div key={post.id} className='related-post-item'>
                 <img
                   src={post.image}
@@ -105,7 +113,7 @@ const BlogPost = () => {
             </button>
           </div>
           <div className='comments-list'>
-            {comments.map((comment) => (
+            {tempComments.map((comment) => (
               <div key={comment.id} className='comment-item mb-4'>
                 <p className='text-sm text-gray-500'>{comment.name}</p>
                 <p className='text-base bg-gray-100 p-3 rounded-lg'>{comment.text}</p>

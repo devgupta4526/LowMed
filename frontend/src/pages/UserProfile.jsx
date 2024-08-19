@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import BlogCard from '../components/BlogCard';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import {toast} from 'react-hot-toast'
 import axios from 'axios'
+import {useNavigate} from 'react-router-dom'
+import { logout } from '../../store/slices/auth.slice';
 
 const UserProfile = () => {
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [savedBlogs, setSavedBlogs] = useState([
     {
       id: '1',
@@ -113,10 +118,19 @@ const UserProfile = () => {
     setIsUpdateFormVisible(false);
   };
 
-  const handleLogout = () => {
-    // Logic to handle user logout
-    // For example, clearing tokens and redirecting to the login page
-    console.log('User logged out');
+  const handleLogout = async () => {
+    try {
+      await axios.post(import.meta.env.VITE_API_URL +'/users/logout', {}, {
+        headers: { Authorization: `Bearer ${yourJwtToken}` },
+        withCredentials: true,
+      });
+      dispatch(logout());
+      toast.success("Logged out successfully");
+      navigate(`/`);
+    } catch (error) {
+      toast.error("Error logging out");
+      console.log(error);
+    }
   };
 
   const handleFileChange = (e) => {

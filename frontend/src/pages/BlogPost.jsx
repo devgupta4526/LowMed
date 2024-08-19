@@ -1,31 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 const BlogPost = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  
+  const { accessToken, userId } = useSelector((state) => state.auth);
+
   const [blogPost, setBlogPost] = useState(null);
   const [newComment, setNewComment] = useState('');
-
-  // Temporary data for related posts and comments
-  const tempRelatedPosts = [
-    {
-      id: 2,
-      title: "Mountain Hiking Adventure",
-      image: "https://images.pexels.com/photos/414171/pexels-photo-414171.jpeg"
-    },
-    {
-      id: 3,
-      title: "A Day in the Forest",
-      image: "https://images.pexels.com/photos/355321/pexels-photo-355321.jpeg"
-    }
-  ];
-
-  const tempComments = [
-    { id: 1, name: 'John Doe', text: 'This is a really insightful post! Thanks for sharing.' },
-    { id: 2, name: 'Jane Smith', text: 'I love visiting beaches, this post was very relatable.' }
-  ];
+  const [comments, setComments] = useState([]);
+  const [commentsLength,setCommentsLength] = useState();
 
   useEffect(() => {
     const fetchBlogPost = async () => {
@@ -37,18 +24,43 @@ const BlogPost = () => {
       }
     };
 
-    fetchBlogPost();
-  }, [id]);
+    const fetchComments = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/comments/${id}`);
+        console.log("comment response");
+        // Update this line to access comments in response.data.statusCode
+        setComments(Array.isArray(response.data.statusCode) ? response.data.statusCode : []);
+        setCommentsLength(response.data.statusCode.length);
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+        setComments([]); // Set an empty array if there's an error
+      }
+    };
 
-  const handleCommentSubmit = () => {
+    fetchBlogPost();
+    fetchComments();
+  }, [id,commentsLength]);
+
+  const handleCommentSubmit = async () => {
     if (newComment.trim() === '') return;
 
-    // Temporary comment submission handling
-    setNewComment('');
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/comments/${id}`,
+        { text: newComment, userId },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+
+      setComments((prevComments) => [...prevComments, response.data.data]);
+      setNewComment('');
+      setCommentsLength(commentsLength + 1);
+    } catch (error) {
+      console.error('Error posting comment:', error);
+    }
   };
 
   const handleBackClick = () => {
-    navigate(-1); // Navigate back to the previous page
+    navigate(-1);
   };
 
   if (!blogPost) {
@@ -58,7 +70,6 @@ const BlogPost = () => {
   return (
     <div className='mt-20'>
       <div className='container mx-auto px-5'>
-        {/* Back Button */}
         <button
           onClick={handleBackClick}
           className='mb-6 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg'
@@ -77,11 +88,10 @@ const BlogPost = () => {
           <p>{blogPost.content}</p>
         </div>
 
-        {/* Related Posts Section */}
         <div className='related-posts mb-10'>
           <h2 className='text-3xl font-semibold mb-5'>Related Posts</h2>
           <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
-            {tempRelatedPosts.map(post => (
+            {blogPost.relatedPosts?.map((post) => (
               <div key={post.id} className='related-post-item'>
                 <img
                   src={post.image}
@@ -94,7 +104,6 @@ const BlogPost = () => {
           </div>
         </div>
 
-        {/* Comment Section */}
         <div className='comment-section'>
           <h2 className='text-3xl font-semibold mb-5'>Comments</h2>
           <div className='comment-box mb-6'>
@@ -113,12 +122,16 @@ const BlogPost = () => {
             </button>
           </div>
           <div className='comments-list'>
-            {tempComments.map((comment) => (
-              <div key={comment.id} className='comment-item mb-4'>
-                <p className='text-sm text-gray-500'>{comment.name}</p>
-                <p className='text-base bg-gray-100 p-3 rounded-lg'>{comment.text}</p>
-              </div>
-            ))}
+            {comments.length > 0 ? (
+              comments.map((comment) => (
+                <div key={comment._id} className='comment-item mb-4'>
+                  <p className='text-sm text-gray-500'>{comment.username}</p>
+                  <p className='text-base bg-gray-100 p-3 rounded-lg'>{comment.text}</p>
+                </div>
+              ))
+            ) : (
+              <p>No comments yet. Be the first to comment!</p>
+            )}
           </div>
         </div>
       </div>

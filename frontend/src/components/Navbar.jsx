@@ -1,9 +1,43 @@
 import { Link, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect } from "react";
+import axios from "axios";
+import { logout, login } from "../../store/slices/auth.slice";
 
 const Navbar = () => {
   const { pathname } = useLocation();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const dispatch = useDispatch();
+
+  const refreshToken = async () => {
+    try {
+      console.log("Refresh Request Sent");
+      const res = await axios.post(
+        import.meta.env.VITE_API_URL + "/users/refresh",
+        {}, // Empty data object
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("refreshToken"),
+          },
+        }
+      );
+      const data = res.data; // No need for an additional await
+      dispatch(login(data));
+      console.log("Token Saved");
+      console.log(data);
+    } catch (error) {
+      console.log("Error from the server,", error);
+      dispatch(logout());
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshToken();
+    }, 1000 * 60 * 12); // 12-minute interval
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <nav
@@ -27,11 +61,13 @@ const Navbar = () => {
         <Link to="/categories" className="hover:text-black cursor-pointer sm:p-2">
           Categories
         </Link>
-        {isAuthenticated && (<>
-          <Link to="/profile" className="hover:text-black cursor-pointer sm:p-2">
-          Profile
-        </Link>
-        </>)}
+        {isAuthenticated && (
+          <>
+            <Link to="/profile" className="hover:text-black cursor-pointer sm:p-2">
+              Profile
+            </Link>
+          </>
+        )}
         {!isAuthenticated && (
           <>
             <Link to="/login" className="hover:text-black cursor-pointer sm:p-2">

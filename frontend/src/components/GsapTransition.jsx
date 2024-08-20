@@ -8,6 +8,7 @@ import SignUp from "../pages/SignUp";
 import gsap from "gsap";
 import toast, { Toaster } from "react-hot-toast";
 import UserProfile from "../pages/UserProfile";
+import EditBlog from "../pages/EditBlog";
 
 const GsapTransition = () => {
   const nodeRef = useRef(null);
@@ -29,6 +30,7 @@ const GsapTransition = () => {
         <Route path="/categories" element={<Categories />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/post/:id" element={<BlogPost />} />
+        <Route path="/edit-blog/:id" element={<EditBlog />} />
       </Routes>
     </div>
   );

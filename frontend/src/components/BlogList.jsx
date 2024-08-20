@@ -47,7 +47,7 @@ const BlogList = () => {
             title={post.title}
             author={post.author.username} // Assuming author name is populated
             image={post.image}
-            excerpt={post.content.substring(0, 100)} // Show the first 100 characters as an excerpt
+            excerpt={post.content.substring(0, 50) + "...."} // Show the first 100 characters as an excerpt
           />
         ))}
       </div>

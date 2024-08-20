@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllBlogPosts, getBlogPostById, createBlogPost, updateBlogPost, deleteBlogPost } from '../controllers/blog.controller.js';
+import { getAllBlogPosts, getBlogPostById, createBlogPost, updateBlogPost, deleteBlogPost, getMyBlogPost } from '../controllers/blog.controller.js';
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -7,6 +7,7 @@ const router = Router();
 
 router.get('/post', getAllBlogPosts);
 router.get('/post/:id', getBlogPostById);
+router.get('/myblogs/',getMyBlogPost);
 
 // Apply `verifyJWT` before the `createBlogPost` controller
 router.post('/post', 

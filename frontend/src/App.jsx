@@ -5,6 +5,7 @@ import store from "../store/store.js"
 import Navbar from "./components/Navbar";
 import GsapTransition from "./components/GsapTransition";
 
+
 function App() {
   return (
     <Provider store={store}>

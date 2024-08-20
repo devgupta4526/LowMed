@@ -38,6 +38,12 @@ const userSchema = new Schema(
         ref: "BlogPost",
       },
     ],
+    yourBlogs: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "BlogPost",
+      },
+    ],
     password: {
       type: String,
       required: [true, "Password is required"],

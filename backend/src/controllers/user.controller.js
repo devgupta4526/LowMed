@@ -3,6 +3,7 @@ import User from "../models/user.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
 
 const signUpUser = asyncHandler(async (req, res) => {
   const { email, username, fullName, password } = req.body;
@@ -61,7 +62,28 @@ const signUpUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, createdUser, "User Created Successfully"));
 });
 
+
+
+const generateAccessRefreshToken = async (userId) => {
+  try {
+    const user = await User.findById(userId);
+    const accessToken = await user.generateAccessToken();
+    const refreshToken = await user.generateRefreshToken();
+
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
+
+    return { accessToken, refreshToken };
+  } catch (error) {
+    throw new ApiError(
+      500,
+      "Something went wrong while generating access refresh token"
+    );
+  }
+};
+
 const refreshAccessToken = asyncHandler(async (req, res) => {
+  console.log("Refresh Request Recieved");
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken ||  req.header("Authorization")?.replace("Bearer ", "");;
   if (!incomingRefreshToken) {
@@ -89,42 +111,37 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       secure: true,
     };
 
-    const { accessToken, newRefreshToken } =
-      await generateAccessAndRefereshTokens(user._id);
+    const { accessToken, refreshToken } =
+      await generateAccessRefreshToken(user._id);
+      const newRefreshToken = refreshToken;
+      console.log(accessToken);
+      console.log(newRefreshToken);
 
-    return res
-      .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", newRefreshToken, options)
-      .json(
-        new ApiResponse(
-          200,
-          { accessToken, refreshToken: newRefreshToken },
-          "Access token refreshed"
-        )
-      );
+    // return res
+    //   .status(200)
+    //   .cookie("accessToken", accessToken, options)
+    //   .cookie("refreshToken", newRefreshToken, options)
+    //   .json(
+    //     new ApiResponse(
+    //       200,
+    //       { accessToken, refreshToken: newRefreshToken },
+    //       "Access token refreshed"
+    //     )
+    //   );
+      return res.status(200)
+  .cookie("accessToken", accessToken, options)
+  .cookie("refreshToken", newRefreshToken, options)
+  .json({
+    success: true,
+    message: "User logged in",
+    accessToken : accessToken,
+    refreshToken : newRefreshToken,
+    userId : user._id,   
+  });
   } catch (error) {
     throw new ApiError(401, error?.message || "Invalid refresh token");
   }
 }); 
-
-const generateAccessRefreshToken = async (userId) => {
-  try {
-    const user = await User.findById(userId);
-    const accessToken = await user.generateAccessToken();
-    const refreshToken = await user.generateRefreshToken();
-
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
-
-    return { accessToken, refreshToken };
-  } catch (error) {
-    throw new ApiError(
-      500,
-      "Something went wrong while generating access refresh token"
-    );
-  }
-};
 
 const loginUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
@@ -208,4 +225,4 @@ const logoutUser = asyncHandler(async (req,res) =>{
 
 
 
-export { signUpUser, loginUser,logoutUser };
+export { signUpUser, loginUser,logoutUser,refreshAccessToken };

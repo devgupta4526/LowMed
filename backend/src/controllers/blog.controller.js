@@ -44,6 +44,7 @@ const createBlogPost = asyncHandler(async (req, res) => {
 
   const { title, author, content, category } = req.body;
   const imageLocalPath = req.files?.image[0]?.path;
+  console.log(imageLocalPath);
 
   // Validate required fields
   if ([title, author,category, content].some((field) => field?.trim() === "")) {
@@ -66,6 +67,7 @@ const createBlogPost = asyncHandler(async (req, res) => {
   let imageUrl = "";
   if (imageLocalPath) {
     imageUrl = await uploadOnCloudinary(imageLocalPath);
+    console.log(imageUrl);
   }
 
   // Create blog post
@@ -126,9 +128,11 @@ const updateBlogPost = asyncHandler(async (req, res) => {
   blogPost.category = category || blogPost.category;
 
   // Handle image upload if a new image is provided
+  const imageUrl = ""
   if (imageLocalPath) {
-    const imageUrl = await uploadOnCloudinary(imageLocalPath);
-    blogPost.image = imageUrl.url || blogPost.image;
+    imageUrl = await uploadOnCloudinary(imageLocalPath);
+    blogPost.image = imageUrl.url;
+    console.log(imageUrl);
   }
 
   // Save the updated blog post
@@ -154,12 +158,12 @@ const deleteBlogPost = asyncHandler(async (req, res) => {
   }
 
   // Ensure that the user trying to delete the post is the author
-  if (String(blogPost.author) !== String(author)) {
-    throw new ApiError(403, "You do not have permission to delete this blog post");
-  }
+  // if (String(blogPost.author) !== String(author)) {
+  //   throw new ApiError(403, "You do not have permission to delete this blog post");
+  // }
 
   // Remove the blog post
-  await blogPost.remove();
+  await blogPost.deleteOne();
 
   // Also remove the blog post reference from the user's 'yourBlogs' array
   const user = await User.findById(author);

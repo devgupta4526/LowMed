@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const YourBlogs = ({ yourBlogs, isLoading, fetchYourBlogs, userToken }) => {
   const navigate = useNavigate();
@@ -8,31 +9,39 @@ const YourBlogs = ({ yourBlogs, isLoading, fetchYourBlogs, userToken }) => {
     navigate(`/edit-blog/${blogId}`);
   };
 
-  const handleDelete = async (blogId) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this blog?");
-    if (confirmDelete) {
-      try {
-        const response = await fetch(`/api/blogs/${blogId}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${userToken}`,
-          },
-        });
 
-        if (response.ok) {
-          alert("Blog deleted successfully!");
-          fetchYourBlogs();
-        } else {
-          const error = await response.json();
-          alert(`Failed to delete blog: ${error.message}`);
-        }
-      } catch (error) {
-        console.error("Error deleting blog:", error);
-        alert("An error occurred while deleting the blog.");
-      }
+
+const handleDelete = async (blogId) => {
+  if (!window.confirm("Are you sure you want to delete this blog?")) {
+    return;
+  }
+
+  try {
+    const response = await axios.delete(`${import.meta.env.VITE_API_URL}/blogs/post/${blogId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+
+    alert("Blog deleted successfully!");
+    fetchYourBlogs();  // Refresh the blog list
+  } catch (error) {
+    if (error.response) {
+      // Error from server response
+      alert(`Failed to delete blog: ${error.response.data.message}`);
+    } else if (error.request) {
+      // Error during request
+      console.error("Error with request:", error.request);
+      alert("An error occurred during the request.");
+    } else {
+      // Other errors
+      console.error("Error deleting blog:", error.message);
+      alert(`An error occurred: ${error.message}`);
     }
-  };
+  }
+};
+
 
   return (
     <div className="mt-10">

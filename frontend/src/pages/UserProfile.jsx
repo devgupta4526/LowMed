@@ -38,30 +38,31 @@ const UserProfile = () => {
   const yourJwtToken = useSelector((state) => state.auth.accessToken);
 
   // Fetch user's blogs when the component mounts
-  useEffect(() => {
-    const fetchYourBlogs = async () => {
-      try {
-        setIsLoading(true); // Show loading state
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/blogs/myblogs/`,
-          {
-            params: { userId }, // Pass userId as a query parameter
-            headers: { Authorization: `Bearer ${yourJwtToken}` },
-          }
-        );
-        const data = await res.data;
-        if (data.success) {
-          setYourBlogs(data.data); // Set blogs data
-        } else {
-          toast.error(data.message);
+  const fetchYourBlogs = async () => {
+    try {
+      setIsLoading(true); // Show loading state
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/blogs/myblogs/`,
+        {
+          params: { userId }, // Pass userId as a query parameter
+          headers: { Authorization: `Bearer ${yourJwtToken}` },
         }
-      } catch (error) {
-        toast.error("Failed to load your blogs");
-        console.log(error);
-      } finally {
-        setIsLoading(false); // Hide loading state
+      );
+      const data = await res.data;
+      if (data.success) {
+        setYourBlogs(data.data); // Set blogs data
+      } else {
+        toast.error(data.message);
       }
-    };
+    } catch (error) {
+      toast.error("Failed to load your blogs");
+      console.log(error);
+    } finally {
+      setIsLoading(false); // Hide loading state
+    }
+  };
+  useEffect(() => {
+   
 
     fetchYourBlogs();
   }, [yourJwtToken, userId]);

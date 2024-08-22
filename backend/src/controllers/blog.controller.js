@@ -96,8 +96,10 @@ const createBlogPost = asyncHandler(async (req, res) => {
 // Update a blog post
 const updateBlogPost = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { title, content, category, author } = req.body;
+  const { title, content, category} = req.body;
   const imageLocalPath = req.files?.image?.[0]?.path;
+  console.log(req.body);
+  console.log(req.body.formData);
 
   // Find the blog post by ID
   const blogPost = await BlogPost.findById(id);
@@ -105,11 +107,12 @@ const updateBlogPost = asyncHandler(async (req, res) => {
   if (!blogPost) {
     throw new ApiError(404, "Blog post not found");
   }
+  console.log(blogPost);
 
   // Ensure that the user trying to update the post is the author
-  if (String(blogPost.author) !== String(author)) {
-    throw new ApiError(403, "You do not have permission to update this blog post");
-  }
+  // if (String(blogPost.author) !== String(author)) {
+  //   throw new ApiError(403, "You do not have permission to update this blog post");
+  // }
 
   // Validate categories (optional: ensure they match allowed categories)
   const allowedCategories = ["Tech", "MobileDev", "Travel", "Food", "Lifestyle", "None"];
@@ -130,6 +133,7 @@ const updateBlogPost = asyncHandler(async (req, res) => {
 
   // Save the updated blog post
   const updatedBlogPost = await blogPost.save();
+  console.log(updatedBlogPost);
 
   return res
     .status(200)

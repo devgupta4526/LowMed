@@ -34,7 +34,7 @@ const Navbar = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       refreshToken();
-    }, 1000 * 60 * 12); // 12-minute interval
+    }, 1000 * 60 * 13); 
 
     return () => clearInterval(interval);
   }, []);

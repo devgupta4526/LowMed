@@ -14,7 +14,7 @@ const BlogList = () => {
     const fetchBlogPosts = async () => {
       try {
         const response = await axiosInstance.get(import.meta.env.VITE_API_URL + '/blogs/post/');
-        const posts = response.data.data || [];
+        const posts = response.data.data.reverse() || [];
         setBlogPosts(posts);
         setFilteredPosts(posts); // Initialize filteredPosts with all posts
       } catch (error) {

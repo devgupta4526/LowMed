@@ -10,66 +10,66 @@ const Navbar = () => {
   const accessToken = useSelector((state) => state.auth.accessToken);
   const dispatch = useDispatch();
 
-  const refreshToken = async () => {
-    try {
-      console.log("Refresh Request Sent");
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/users/refresh`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("refreshToken")}`,
-          },
-        }
-      );
-      const data = res.data;
-      dispatch(login(data));
-      console.log("Token Saved");
-    } catch (error) {
-      console.log("Error from the server,", error);
-      dispatch(logout());
-    }
-  };
+  // const refreshToken = async () => {
+  //   try {
+  //     console.log("Refresh Request Sent");
+  //     const res = await axios.post(
+  //       `${import.meta.env.VITE_API_URL}/users/refresh`,
+  //       {},
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem("refreshToken")}`,
+  //         },
+  //       }
+  //     );
+  //     const data = res.data;
+  //     dispatch(login(data));
+  //     console.log("Token Saved");
+  //   } catch (error) {
+  //     console.log("Error from the server,", error);
+  //     dispatch(logout());
+  //   }
+  // };
 
-  const parseJwt = (token) => {
-    try {
-      const base64Url = token.split('.')[1]; // Get the payload part of the JWT
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      return JSON.parse(jsonPayload);
-    } catch (error) {
-      return null;
-    }
-  };
+  // const parseJwt = (token) => {
+  //   try {
+  //     const base64Url = token.split('.')[1]; // Get the payload part of the JWT
+  //     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  //     const jsonPayload = decodeURIComponent(
+  //       atob(base64)
+  //         .split('')
+  //         .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+  //         .join('')
+  //     );
+  //     return JSON.parse(jsonPayload);
+  //   } catch (error) {
+  //     return null;
+  //   }
+  // };
 
-  const isTokenExpiringSoon = (token) => {
-    if (!token) return true;
+  // const isTokenExpiringSoon = (token) => {
+  //   if (!token) return true;
 
-    const decoded = parseJwt(token);
-    if (!decoded) return true;
+  //   const decoded = parseJwt(token);
+  //   if (!decoded) return true;
 
-    const currentTime = Date.now() / 1000;
-    return decoded.exp - currentTime < 60 * 5;
-  };
+  //   const currentTime = Date.now() / 1000;
+  //   return decoded.exp - currentTime < 60 * 5;
+  // };
 
-  useEffect(() => {
-    const checkAndRefreshToken = async () => {
-      if (!accessToken || isTokenExpiringSoon(accessToken)) {
-        await refreshToken();
-      }
-    };
+  // useEffect(() => {
+  //   const checkAndRefreshToken = async () => {
+  //     if (!accessToken || isTokenExpiringSoon(accessToken)) {
+  //       await refreshToken();
+  //     }
+  //   };
 
-    checkAndRefreshToken();
+  //   checkAndRefreshToken();
 
-    const interval = setInterval(checkAndRefreshToken, 1000 * 60 * 13); // Check every 13 minutes
+  //   const interval = setInterval(checkAndRefreshToken, 1000 * 60 * 13); // Check every 13 minutes
 
-    return () => clearInterval(interval);
-  }, [accessToken, dispatch]);
+  //   return () => clearInterval(interval);
+  // }, [accessToken, dispatch]);
 
   return (
     <nav

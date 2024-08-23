@@ -13,5 +13,19 @@ body {
     padding-top: 60px; /* Adjust this value to match the navbar height */
   }
   
+/* Assuming you use a global CSS file */
+.slider-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth; /* Ensures smooth scrolling */
+  gap: 1rem; /* Adds spacing between blog cards */
+}
+
+.blog-item {
+  scroll-snap-align: center; /* Ensures the blog card snaps to the center */
+  min-width: 300px; /* Ensure the minimum width for each blog card */
+  flex-shrink: 0; /* Prevent shrinking */
+}
 
 

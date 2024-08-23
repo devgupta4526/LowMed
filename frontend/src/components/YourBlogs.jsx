@@ -9,39 +9,36 @@ const YourBlogs = ({ yourBlogs, isLoading, fetchYourBlogs, userToken }) => {
     navigate(`/edit-blog/${blogId}`);
   };
 
-
-
-const handleDelete = async (blogId) => {
-  if (!window.confirm("Are you sure you want to delete this blog?")) {
-    return;
-  }
-
-  try {
-    const response = await axios.delete(`${import.meta.env.VITE_API_URL}/blogs/post/${blogId}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
-    });
-
-    alert("Blog deleted successfully!");
-    fetchYourBlogs();  // Refresh the blog list
-  } catch (error) {
-    if (error.response) {
-      // Error from server response
-      alert(`Failed to delete blog: ${error.response.data.message}`);
-    } else if (error.request) {
-      // Error during request
-      console.error("Error with request:", error.request);
-      alert("An error occurred during the request.");
-    } else {
-      // Other errors
-      console.error("Error deleting blog:", error.message);
-      alert(`An error occurred: ${error.message}`);
+  const handleDelete = async (blogId) => {
+    if (!window.confirm("Are you sure you want to delete this blog?")) {
+      return;
     }
-  }
-};
 
+    try {
+      const response = await axios.delete(`${import.meta.env.VITE_API_URL}/blogs/post/${blogId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      alert("Blog deleted successfully!");
+      fetchYourBlogs();  // Refresh the blog list
+    } catch (error) {
+      if (error.response) {
+        // Error from server response
+        alert(`Failed to delete blog: ${error.response.data.message}`);
+      } else if (error.request) {
+        // Error during request
+        console.error("Error with request:", error.request);
+        alert("An error occurred during the request.");
+      } else {
+        // Other errors
+        console.error("Error deleting blog:", error.message);
+        alert(`An error occurred: ${error.message}`);
+      }
+    }
+  };
 
   return (
     <div className="mt-10">
@@ -49,10 +46,13 @@ const handleDelete = async (blogId) => {
       {isLoading ? (
         <p>Loading...</p>
       ) : yourBlogs.length > 0 ? (
-        <div className="flex overflow-x-scroll space-x-6 py-4">
-          {yourBlogs.map((blog) => (
-            <div key={blog._id} className="min-w-[300px] w-[300px] flex-shrink-0">
-              <div className="bg-white shadow-md rounded-lg overflow-hidden">
+        <div className="relative overflow-x-auto">
+          <div className="flex space-x-6 py-4">
+            {yourBlogs.map((blog) => (
+              <div
+                key={blog._id}
+                className="min-w-[300px] max-w-[300px] flex-shrink-0 bg-white shadow-md rounded-lg overflow-hidden flex flex-col"
+              >
                 {blog.image ? (
                   <img
                     src={blog.image}
@@ -64,36 +64,36 @@ const handleDelete = async (blogId) => {
                     <span className="text-gray-500">No Image</span>
                   </div>
                 )}
-                <div className="p-4">
+                <div className="p-4 flex flex-col flex-grow">
                   <h3 className="text-xl font-bold text-black mb-2">{blog.title}</h3>
                   <p className="text-gray-600 mb-2">
                     {blog.author.username || "Anonymous"}
                   </p>
                   <p className="text-gray-500 mb-2">Category: {blog.category || "None"}</p>
-                  <p className="text-gray-700 mb-4 line-clamp-3">
+                  <p className="text-gray-700 mb-4 flex-grow line-clamp-3">
                     {blog.content.substring(0, 100)}...
                   </p>
                   <p className="text-gray-400 text-sm mb-4">
                     Posted on: {new Date(blog.createdAt).toLocaleDateString()}
                   </p>
-                  <div className="flex space-x-4">
+                  <div className="flex space-x-4 mt-auto">
                     <button
                       onClick={() => handleEdit(blog._id)}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                      className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(blog._id)}
-                      className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                      className="px-4 py-2 border border-black text-black bg-white rounded-md hover:bg-gray-100"
                     >
                       Delete
                     </button>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       ) : (
         <p>No blogs found.</p>

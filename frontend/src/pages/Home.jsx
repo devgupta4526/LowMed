@@ -5,7 +5,7 @@ import BlogList from '../components/BlogList';
 const Home = () => {
   return (
     <div className='mt-36'> 
-      <HeroSection />
+      {/* <HeroSection /> */}
       <BlogList />
     </div>
   );

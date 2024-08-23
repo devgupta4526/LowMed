@@ -1,6 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import fs from "fs"
-
+import fs from "fs";
 
 // Configuration
 cloudinary.config({
@@ -17,13 +16,13 @@ const uploadOnCloudinary = async (localFilePath) => {
       resource_type: "auto",
     });
 
-    fs.unlinkSync(localFilePath);
-    return response;
+    fs.unlinkSync(localFilePath); // Delete the local file
+    return response; // Return the Cloudinary response with image details
     
   } catch (error) {
-    fs.unlinkSync(localFilePath);
+    fs.unlinkSync(localFilePath); // Delete the local file even if there's an error
     return null;
   }
 };
 
-export {uploadOnCloudinary};
+export { uploadOnCloudinary };

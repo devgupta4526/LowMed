@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import BlogCard from "../components/BlogCard";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../store/slices/auth.slice";
-import YourBlogs from "../components/YourBlogs"; // Import the new YourBlogs component
+import YourBlogs from "../components/YourBlogs"; 
+import axiosInstance from '../utils/axiosInstance';
 
 const UserProfile = () => {
   const dispatch = useDispatch();
@@ -41,7 +41,7 @@ const UserProfile = () => {
   const fetchYourBlogs = async () => {
     try {
       setIsLoading(true); // Show loading state
-      const res = await axios.get(
+      const res = await axiosInstance.get(
         `${import.meta.env.VITE_API_URL}/blogs/myblogs/`,
         {
           params: { userId }, // Pass userId as a query parameter
@@ -50,7 +50,7 @@ const UserProfile = () => {
       );
       const data = await res.data;
       if (data.success) {
-        setYourBlogs(data.data); // Set blogs data
+        setYourBlogs(data.data.reverse()); // Set blogs data
       } else {
         toast.error(data.message);
       }
@@ -61,9 +61,8 @@ const UserProfile = () => {
       setIsLoading(false); // Hide loading state
     }
   };
-  useEffect(() => {
-   
 
+  useEffect(() => {
     fetchYourBlogs();
   }, [yourJwtToken, userId]);
 
@@ -84,7 +83,7 @@ const UserProfile = () => {
       formData.append("content", content);
       formData.append("category", category);
 
-      const res = await axios.post(
+      const res = await axiosInstance.post(
         `${import.meta.env.VITE_API_URL}/blogs/post`,
         formData,
         {
@@ -104,6 +103,7 @@ const UserProfile = () => {
         toast.success(data.message);
         setYourBlogs((prevBlogs) => [data.data, ...prevBlogs]); // Add new blog to state
       }
+      fetchYourBlogs();
     } catch (error) {
       toast.error(error.response?.data?.message || "An error occurred");
       console.log(error);
@@ -118,7 +118,7 @@ const UserProfile = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
+      await axiosInstance.post(
         `${import.meta.env.VITE_API_URL}/users/logout`,
         {},
         {
@@ -220,7 +220,7 @@ const UserProfile = () => {
         {/* Saved Blogs */}
         <div className="mt-10">
           <h2 className="text-3xl font-bold mb-6 text-black">Saved Blogs</h2>
-          <div className="flex overflow-x-scroll space-x-6 py-4">
+          <div className="flex overflow-x-auto space-x-6 py-4">
             {savedBlogs.map((blog) => (
               <div
                 key={blog.id}
@@ -242,7 +242,7 @@ const UserProfile = () => {
         <YourBlogs
           yourBlogs={yourBlogs}
           isLoading={isLoading}
-          fetchYourBlogs={() => fetchYourBlogs()} // Pass fetch function
+          fetchYourBlogs={fetchYourBlogs} // Pass fetch function
           userToken={yourJwtToken}
         />
 

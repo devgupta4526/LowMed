@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
+import axiosInstance from "../utils/axiosInstance";
 
 const EditBlog = () => {
   const { id } = useParams(); // Get the blog ID from the URL
@@ -21,7 +21,7 @@ const EditBlog = () => {
     const fetchBlogDetails = async () => {
       try {
         setIsLoading(true);
-        const res = await axios.get(
+        const res = await axiosInstance.get(
           `${import.meta.env.VITE_API_URL}/blogs/post/${id}`,
           {
             headers: { Authorization: `Bearer ${userToken}` },
@@ -74,7 +74,7 @@ const EditBlog = () => {
         image: imagePreview // We send the image URL as part of the payload
       };
 
-      const res = await axios.put(
+      const res = await axiosInstance.put(
         `${import.meta.env.VITE_API_URL}/blogs/post/${id}`,
         payload,
         {

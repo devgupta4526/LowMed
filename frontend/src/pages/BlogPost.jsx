@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useSelector } from 'react-redux';
+import axiosInstance from '../utils/axiosInstance';
 
 const BlogPost = () => {
   const { id } = useParams();
@@ -17,7 +17,7 @@ const BlogPost = () => {
   useEffect(() => {
     const fetchBlogPost = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/blogs/post/${id}`);
+        const response = await axiosInstance.get(`${import.meta.env.VITE_API_URL}/blogs/post/${id}`);
         setBlogPost(response.data.data);
       } catch (error) {
         console.error('Error fetching blog post:', error);
@@ -26,7 +26,7 @@ const BlogPost = () => {
 
     const fetchComments = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/comments/${id}`);
+        const response = await axiosInstance.get(`${import.meta.env.VITE_API_URL}/comments/${id}`);
         console.log("comment response");
         // Update this line to access comments in response.data.statusCode
         setComments(Array.isArray(response.data.statusCode) ? response.data.statusCode : []);
@@ -45,7 +45,7 @@ const BlogPost = () => {
     if (newComment.trim() === '') return;
 
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `${import.meta.env.VITE_API_URL}/comments/${id}`,
         { text: newComment, userId },
         { headers: { Authorization: `Bearer ${accessToken}` } }

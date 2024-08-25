@@ -22,7 +22,8 @@ const UserProfile = () => {
   });
 
   const [userDetails, setUserDetails] = useState({
-    username: "Dev Gupta",
+    image : "https://media.istockphoto.com/id/1327592506/vector/default-avatar-photo-placeholder-icon-grey-profile-picture-business-man.jpg?s=612x612&w=0&k=20&c=BpR0FVaEa5F24GIw7K8nMWiiGmbb8qmhfkpXcp1dhQg=",
+    fullName: "Dev Gupta",
     email: "devguptamsi@gmail.com",
     bio: "Full-stack developer passionate about creating interactive and responsive web applications.",
   });
@@ -62,8 +63,38 @@ const UserProfile = () => {
     }
   };
 
+    const fetchUserDetails = async () => {
+      try {
+        const res = await axiosInstance.get(
+          `${import.meta.env.VITE_API_URL}/users/details`,
+          {
+            headers: { Authorization: `Bearer ${yourJwtToken}` },
+          }
+        );
+  
+        const data = await res.data;
+        if (data.success) {
+          setUserDetails({
+            image : data.data.avatar,
+            fullName: data.data.fullName,
+            email: data.data.email,
+            bio: data.data.bio,
+          });
+        } else {
+          toast.error("Failed to fetch user details.");
+        }
+      } catch (error) {
+        toast.error("An error occurred while fetching user details.");
+        console.log(error);
+      }
+    };
+  
+ 
+  
+
   useEffect(() => {
     fetchYourBlogs();
+    fetchUserDetails();
   }, [yourJwtToken, userId]);
 
   const handleAddBlog = async (e) => {
@@ -110,11 +141,41 @@ const UserProfile = () => {
     }
   };
 
-  const handleUpdateDetails = (e) => {
+  const handleUpdateDetails = async (e) => {
     e.preventDefault();
-    // Handle the update details logic here
-    setIsUpdateFormVisible(false);
+  
+    try {
+      const res = await axiosInstance.put(
+        `${import.meta.env.VITE_API_URL}/users/update`,
+        {
+          fullName: userDetails.fullName,
+          email: userDetails.email,
+          bio: userDetails.bio,
+        },
+        {
+          headers: { Authorization: `Bearer ${yourJwtToken}` },
+        }
+      );
+      
+      const data = await res.data;
+      if (data.success) {
+        toast.success("User details updated successfully!");
+        setUserDetails({
+          fullName: data.data.fullName,
+          email: data.data.email,
+          bio: data.data.bio,
+        });
+        setIsUpdateFormVisible(false); // Hide the form
+        fetchUserDetails();
+      } else {
+        toast.error("Failed to update user details.");
+      }
+    } catch (error) {
+      toast.error("An error occurred while updating.");
+      console.log(error);
+    }
   };
+  
 
   const handleLogout = async () => {
     try {
@@ -142,12 +203,12 @@ const UserProfile = () => {
         <div className="bg-black p-10 rounded-lg shadow-lg text-white mb-10">
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-6">
             <img
-              src="https://via.placeholder.com/100"
+              src={userDetails.image}
               alt="Profile"
               className="w-24 h-24 rounded-full ring-4 ring-white"
             />
             <div className="flex-grow">
-              <h1 className="text-4xl font-bold">{userDetails.username}</h1>
+              <h1 className="text-4xl font-bold">{userDetails.fullName}</h1>
               <p className="text-gray-400">{userDetails.email}</p>
               <p className="mt-2 text-gray-300">{userDetails.bio}</p>
             </div>
@@ -218,25 +279,7 @@ const UserProfile = () => {
         )}
 
         {/* Saved Blogs */}
-        <div className="mt-10">
-          <h2 className="text-3xl font-bold mb-6 text-black">Saved Blogs</h2>
-          <div className="flex overflow-x-auto space-x-6 py-4">
-            {savedBlogs.map((blog) => (
-              <div
-                key={blog.id}
-                className="min-w-[300px] w-[300px] flex-shrink-0"
-              >
-                <BlogCard
-                  id={blog.id}
-                  title={blog.title}
-                  author={blog.author}
-                  image={blog.image}
-                  excerpt={blog.content}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
+       
 
         {/* Your Blogs */}
         <YourBlogs

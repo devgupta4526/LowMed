@@ -223,6 +223,40 @@ const logoutUser = asyncHandler(async (req,res) =>{
   
 })
 
+const updateUser = asyncHandler(async (req, res) => {
+  const { username, email, bio } = req.body;
+
+  if ([username, email, bio].some((field) => field?.trim() === "")) {
+    throw new ApiError(400, "All Fields Are Required");
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    { username, email, bio },
+    { new: true, runValidators: true }
+  ).select("-password -refreshToken");
+
+  if (!updatedUser) {
+    throw new ApiError(400, "User not found or update failed");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedUser, "User Updated Successfully"));
+});
+
+const getUserDetails = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).select("-password -refreshToken");
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res.status(200).json(new ApiResponse(200, user, "User details fetched successfully"));
+});
 
 
-export { signUpUser, loginUser,logoutUser,refreshAccessToken };
+
+
+
+export { signUpUser, loginUser,logoutUser,getUserDetails, updateUser,refreshAccessToken };

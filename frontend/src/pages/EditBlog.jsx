@@ -140,12 +140,12 @@ const EditBlog = () => {
             <option value="Lifestyle">Lifestyle</option>
             <option value="Fashion">Fashion</option>
           </select>
-          <input
+          {/* <input
             type="file"
             accept="image/*"
             onChange={handleImageChange}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-          />
+          /> */}
           {imagePreview && (
             <img
               src={imagePreview}

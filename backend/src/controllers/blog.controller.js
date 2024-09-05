@@ -4,6 +4,7 @@ import User from "../models/user.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import cloudinary from 'cloudinary';
 
 // Get all blog posts
 const getAllBlogPosts = asyncHandler(async (req, res) => {
@@ -53,7 +54,7 @@ const getRelatedBlogPostById = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, { relatedPosts }, "Blog Post retrieved successfully"));
+    .json(new ApiResponse(200,  relatedPosts, "Blog Post retrieved successfully"));
 });
 
 

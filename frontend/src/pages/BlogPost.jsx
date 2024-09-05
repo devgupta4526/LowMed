@@ -1,34 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import axiosInstance from '../utils/axiosInstance';
+import axiosInstance from '../utils/axiosInstance'; // Adjust the import path based on your project structure
 
 const BlogPost = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
   const { accessToken, userId } = useSelector((state) => state.auth);
 
   const [blogPost, setBlogPost] = useState(null);
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState([]);
-  const [commentsLength, setCommentsLength] = useState();
+  const [commentsLength, setCommentsLength] = useState(0);
   const [relatedPosts, setRelatedPosts] = useState([]);
 
   useEffect(() => {
     const fetchBlogPost = async () => {
       try {
-        const response = await axiosInstance.get(`${import.meta.env.VITE_API_URL}/blogs/post/${id}`);
-        setBlogPost(response.data.data.blogPost);
-        setRelatedPosts(response.data.data.relatedPosts);
-      } catch (error) {
-        console.error('Error fetching blog post:', error);
-      }
-    };
-    const fetchRelatedBlogPost = async () => {
-      try {
-        const response = await axiosInstance.get(`${import.meta.env.VITE_API_URL}/blogs/post/related/${id}`);
-        setRelatedPosts(response.data.data.relatedPosts);
+        const response = await axiosInstance.get(`/blogs/post/${id}`);
+        setBlogPost(response.data.data);
+
+        // Fetch related posts from a different URL
+        const relatedResponse = await axiosInstance.get(`/blogs/post/related/${id}`);
+        setRelatedPosts(relatedResponse.data.data);
       } catch (error) {
         console.error('Error fetching blog post:', error);
       }
@@ -36,26 +30,30 @@ const BlogPost = () => {
 
     const fetchComments = async () => {
       try {
-        const response = await axiosInstance.get(`${import.meta.env.VITE_API_URL}/comments/${id}`);
-        setComments(Array.isArray(response.data.statusCode) ? response.data.statusCode : []);
-        setCommentsLength(response.data.statusCode.length);
+        const response = await axiosInstance.get(`/comments/${id}`);
+        console.log("comments response ", response);
+
+        // Access comments from `statusCode` array
+        const commentsData = response.data.statusCode || [];
+        
+        setComments(Array.isArray(commentsData) ? commentsData : []);
+        setCommentsLength(commentsData.length || 0);
       } catch (error) {
         console.error('Error fetching comments:', error);
-        setComments([]); // Set an empty array if there's an error
+        setComments([]);
       }
     };
 
     fetchBlogPost();
     fetchComments();
-    fetchRelatedBlogPost();
-  }, [id, commentsLength]);
+  }, [id,commentsLength]);
 
   const handleCommentSubmit = async () => {
     if (newComment.trim() === '') return;
 
     try {
       const response = await axiosInstance.post(
-        `${import.meta.env.VITE_API_URL}/comments/${id}`,
+        `/comments/${id}`,
         { text: newComment, userId },
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );

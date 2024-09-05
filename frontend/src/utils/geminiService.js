@@ -48,5 +48,6 @@ export const generateBlogPost = async (topic, wordCount, section) => {
   const result = await chatSession.sendMessage(prompt);
   console.log("Fetched gemini data");
   const blogResp = JSON.parse(result.response.text());
+  console.log(blogResp);
   return blogResp;
 };

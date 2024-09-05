@@ -2,14 +2,14 @@ import React, { useEffect, useRef } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Home from "../pages/Home";
 import BlogPost from "../pages/BlogPost";
-import Categories from "../pages/Categories";
 import Login from "../pages/Login";
 import SignUp from "../pages/SignUp";
 import UserProfile from "../pages/UserProfile";
 import EditBlog from "../pages/EditBlog";
-import ProtectedRoute from "./ProtectedRoute"; // Import ProtectedRoute
+import ProtectedRoute from "./ProtectedRoute"; 
 import gsap from "gsap";
 import toast, { Toaster } from "react-hot-toast";
+import BlogGenerator from "../pages/BlogGenerator";
 
 const GsapTransition = () => {
   const nodeRef = useRef(null);
@@ -29,7 +29,7 @@ const GsapTransition = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/categories" element={<Categories />} />
+        <Route path="/generate" element={<BlogGenerator />} />
         <Route
           path="/profile"
           element={

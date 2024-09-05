@@ -90,8 +90,8 @@ const Navbar = () => {
         <Link to="/" className="hover:text-black cursor-pointer sm:p-2">
           Home
         </Link>
-        <Link to="/categories" className="hover:text-black cursor-pointer sm:p-2">
-          Categories
+        <Link to="/generate" className="hover:text-black cursor-pointer sm:p-2">
+          Generate
         </Link>
         {isAuthenticated ? (
           <Link to="/profile" className="hover:text-black cursor-pointer sm:p-2">

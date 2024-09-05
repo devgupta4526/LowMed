@@ -21,21 +21,21 @@ const getAllBlogPosts = asyncHandler(async (req, res) => {
 });
 
 // Get post by id
-// const getBlogPostById = asyncHandler(async (req, res) => {
-//   const { id } = req.params;
-
-//   const blogPost = await BlogPost.findById(id).populate("author", "username");
-
-//   if (!blogPost) {
-//     throw new ApiError(404, "Blog post not found");
-//   }
-
-//   return res
-//     .status(200)
-//     .json(new ApiResponse(200, blogPost, "Blog Post retrieved successfully"));
-// });
-// Get post by id
 const getBlogPostById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const blogPost = await BlogPost.findById(id).populate("author", "username");
+
+  if (!blogPost) {
+    throw new ApiError(404, "Blog post not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, blogPost, "Blog Post retrieved successfully"));
+});
+// Get related post by id
+const getRelatedBlogPostById = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   const blogPost = await BlogPost.findById(id)
@@ -53,7 +53,7 @@ const getBlogPostById = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, { blogPost, relatedPosts }, "Blog Post retrieved successfully"));
+    .json(new ApiResponse(200, { relatedPosts }, "Blog Post retrieved successfully"));
 });
 
 
@@ -260,4 +260,5 @@ export {
   deleteBlogPost,
   getMyBlogPost,
   searchBlogPosts,
+  getRelatedBlogPostById,
 };

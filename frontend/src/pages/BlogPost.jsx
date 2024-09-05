@@ -25,6 +25,14 @@ const BlogPost = () => {
         console.error('Error fetching blog post:', error);
       }
     };
+    const fetchRelatedBlogPost = async () => {
+      try {
+        const response = await axiosInstance.get(`${import.meta.env.VITE_API_URL}/blogs/post/related/${id}`);
+        setRelatedPosts(response.data.data.relatedPosts);
+      } catch (error) {
+        console.error('Error fetching blog post:', error);
+      }
+    };
 
     const fetchComments = async () => {
       try {
@@ -39,6 +47,7 @@ const BlogPost = () => {
 
     fetchBlogPost();
     fetchComments();
+    fetchRelatedBlogPost();
   }, [id, commentsLength]);
 
   const handleCommentSubmit = async () => {

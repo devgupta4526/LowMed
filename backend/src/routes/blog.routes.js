@@ -7,6 +7,7 @@ import {
   deleteBlogPost,
   getMyBlogPost,
   searchBlogPosts,
+  getRelatedBlogPostById,
 } from "../controllers/blog.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -15,6 +16,7 @@ const router = Router();
 
 router.get("/post", getAllBlogPosts);
 router.get("/post/:id", getBlogPostById);
+router.get("/post/related/:id", getRelatedBlogPostById);
 router.get("/myblogs/", getMyBlogPost);
 router.get("/search", searchBlogPosts);
 

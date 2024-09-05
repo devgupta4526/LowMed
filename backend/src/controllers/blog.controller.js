@@ -21,19 +21,41 @@ const getAllBlogPosts = asyncHandler(async (req, res) => {
 });
 
 // Get post by id
+// const getBlogPostById = asyncHandler(async (req, res) => {
+//   const { id } = req.params;
+
+//   const blogPost = await BlogPost.findById(id).populate("author", "username");
+
+//   if (!blogPost) {
+//     throw new ApiError(404, "Blog post not found");
+//   }
+
+//   return res
+//     .status(200)
+//     .json(new ApiResponse(200, blogPost, "Blog Post retrieved successfully"));
+// });
+// Get post by id
 const getBlogPostById = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const blogPost = await BlogPost.findById(id).populate("author", "username");
+  const blogPost = await BlogPost.findById(id)
+    .populate("author", "username");
 
   if (!blogPost) {
     throw new ApiError(404, "Blog post not found");
   }
 
+  // Fetch related posts from the same category
+  const relatedPosts = await BlogPost.find({
+    _id: { $ne: id },
+    category: blogPost.category,
+  }).limit(3); // Limit the number of related posts
+
   return res
     .status(200)
-    .json(new ApiResponse(200, blogPost, "Blog Post retrieved successfully"));
+    .json(new ApiResponse(200, { blogPost, relatedPosts }, "Blog Post retrieved successfully"));
 });
+
 
 // Add a new blog post
 const createBlogPost = asyncHandler(async (req, res) => {

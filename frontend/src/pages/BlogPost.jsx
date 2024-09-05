@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axiosInstance from '../utils/axiosInstance';
 
@@ -12,13 +12,15 @@ const BlogPost = () => {
   const [blogPost, setBlogPost] = useState(null);
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState([]);
-  const [commentsLength,setCommentsLength] = useState();
+  const [commentsLength, setCommentsLength] = useState();
+  const [relatedPosts, setRelatedPosts] = useState([]);
 
   useEffect(() => {
     const fetchBlogPost = async () => {
       try {
         const response = await axiosInstance.get(`${import.meta.env.VITE_API_URL}/blogs/post/${id}`);
-        setBlogPost(response.data.data);
+        setBlogPost(response.data.data.blogPost);
+        setRelatedPosts(response.data.data.relatedPosts);
       } catch (error) {
         console.error('Error fetching blog post:', error);
       }
@@ -27,8 +29,6 @@ const BlogPost = () => {
     const fetchComments = async () => {
       try {
         const response = await axiosInstance.get(`${import.meta.env.VITE_API_URL}/comments/${id}`);
-        console.log("comment response");
-        // Update this line to access comments in response.data.statusCode
         setComments(Array.isArray(response.data.statusCode) ? response.data.statusCode : []);
         setCommentsLength(response.data.statusCode.length);
       } catch (error) {
@@ -39,7 +39,7 @@ const BlogPost = () => {
 
     fetchBlogPost();
     fetchComments();
-  }, [id,commentsLength]);
+  }, [id, commentsLength]);
 
   const handleCommentSubmit = async () => {
     if (newComment.trim() === '') return;
@@ -91,15 +91,15 @@ const BlogPost = () => {
         <div className='related-posts mb-10'>
           <h2 className='text-3xl font-semibold mb-5'>Related Posts</h2>
           <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
-            {blogPost.relatedPosts?.map((post) => (
-              <div key={post.id} className='related-post-item'>
+            {relatedPosts.map((post) => (
+              <Link to={`/post/${post._id}`} key={post._id} className='related-post-item'>
                 <img
                   src={post.image}
                   alt={post.title}
                   className='w-full h-40 object-cover rounded-lg mb-3'
                 />
                 <h3 className='text-xl font-medium'>{post.title}</h3>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
